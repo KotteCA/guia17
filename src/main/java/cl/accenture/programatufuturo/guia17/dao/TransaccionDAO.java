@@ -2,9 +2,11 @@ package cl.accenture.programatufuturo.guia17.dao;
 
 
 import cl.accenture.programatufuturo.guia17.Modelo.CuentaBancaria;
+import cl.accenture.programatufuturo.guia17.Modelo.Transaccion;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.LinkedList;
 
 public class TransaccionDAO {
     private Conexion conect;
@@ -12,6 +14,7 @@ public class TransaccionDAO {
     public TransaccionDAO() {
         this.conect = new Conexion();
     }
+
     public TransaccionDAO(Conexion conect) {
         this.conect = conect;
     }
@@ -19,14 +22,38 @@ public class TransaccionDAO {
     public Conexion getConect() {
         return conect;
     }
+
     public void setConect(Conexion conect) {
         this.conect = conect;
     }
 
-    public void ListarTransacciones (CuentaBancaria a) throws Exception{
+    public LinkedList<Transaccion> ListarTransacciones(CuentaBancaria a) throws Exception {
+        LinkedList<Transaccion> transaccions = new LinkedList<Transaccion>();
+        PreparedStatement preparedStatement = getConect().obtenerConnection().prepareStatement("SELECT tipoTransaccion FROM Transaccion WHERE CuentaBancaria_idCuenta=?");
+        preparedStatement.setString(1, a.getIdCuenta());
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            Transaccion transaccion = new Transaccion();
+            transaccion.setTipoTransaccion(rs.getString("tipoTransaccion"));
+            transaccion.setMonto(rs.getInt("monto"));
+            transaccions.add(transaccion);
+        }
+        return transaccions;
     }
 
-    public void ListaAbono(){
 
+
+    public LinkedList <Transaccion> ListaAbono() throws Exception{
+        LinkedList<Transaccion> transaccions = new LinkedList<Transaccion>();
+        PreparedStatement preparedStatement = getConect().obtenerConnection().prepareStatement("SELECT * FROM Transacción WHERE tipoTransaccion=abono");
+        ResultSet rs = preparedStatement.executeQuery();
+        while(rs.next()){
+            Transaccion transaccion = new Transaccion();
+            transaccion.setTipoTransaccion(rs.getString("tipoTransaccion"));
+            transaccion.setMonto(rs.getInt("monto"));
+            transaccions.add(transaccion);
+        }
+        return transaccions;
     }
+
 }
